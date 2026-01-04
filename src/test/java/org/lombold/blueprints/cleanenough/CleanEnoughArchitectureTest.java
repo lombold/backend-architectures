@@ -1,5 +1,5 @@
 // java
-package org.lombold.blueprints.cleanarchitecture;
+package org.lombold.blueprints.cleanenough;
 
 import com.tngtech.archunit.core.importer.ImportOption;
 import com.tngtech.archunit.junit.AnalyzeClasses;
@@ -10,10 +10,10 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 
 @AnalyzeClasses(
-        packages = "org.lombold.blueprints.cleanarchitecture",
+        packages = "org.lombold.blueprints.cleanenough",
         importOptions = ImportOption.DoNotIncludeTests.class
 )
-public class CleanArchitectureTest {
+public class CleanEnoughArchitectureTest {
 
     @ArchTest
     static final ArchRule domain_only_depends_on_itself_and_java =
@@ -38,19 +38,6 @@ public class CleanArchitectureTest {
                     );
 
     @ArchTest
-    static final ArchRule adapters_only_depend_on_app_domain_and_java =
-            classes().that().resideInAPackage("..adapter..")
-                    .should().onlyDependOnClassesThat()
-                    .resideInAnyPackage(
-                            "java..",
-                            "lombok..",
-                            "..adapter..",
-                            "..application..",
-                            "..domain..",
-                            "..common.."
-                    );
-
-    @ArchTest
     static final ArchRule inbound_adapters_do_not_depend_on_outbound =
             noClasses().that().resideInAPackage("..adapter.controllers..")
                     .should().dependOnClassesThat()
@@ -61,11 +48,11 @@ public class CleanArchitectureTest {
             noClasses().that().resideInAPackage("..adapter.gateways..")
                     .should().dependOnClassesThat()
                     .resideInAPackage("..adapter.controllers..");
-    
+
     @ArchTest
-    static final ArchRule only_frameworks_layer_may_depend_on_frameworks =
+    static final ArchRule no_other_layers_may_depend_on_config =
             noClasses().that()
-                    .resideOutsideOfPackage("..frameworks..")
+                    .resideInAnyPackage("..domain..", "..application..", "..adapter..")
                     .should().dependOnClassesThat()
-                    .resideInAnyPackage("..spring..", "..jakarta..", "..hibernate..");
+                    .resideInAPackage("..config..");
 }
