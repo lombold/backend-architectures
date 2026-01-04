@@ -1,0 +1,40 @@
+flowchart TB
+    subgraph O4["Frameworks & Drivers"]
+        F1["SpringCleanArchitectureApplication"]
+        F2["CleanArchitectureConfiguration"]
+        F3["SpringTransferMoneyController"]
+        F4["AccountEntity (JPA)"]
+        F5["JpaAccountRepository"]
+        F6["JpaAccountRepositoryGateway"]
+        F7["CleanArchitectureAccountMapper"]
+        F8["NotFoundException"]
+
+        subgraph O3["Adapters"]
+            AD1["TransferMoneyController"]
+            AD2["TransferMoneyRequest (DTO)"]
+            AD3["AccountBalancePresenter"]
+            AD4["AccountRepositoryAdapter"]
+            AD5["AccountRepositoryGateway"]
+
+            subgraph O2["Application"]
+                A1["TransferMoneyUseCase"]
+                A2["TransferMoneyService"]
+                A3["AccountRepository (output port)"]
+
+                subgraph O1["Domain"]
+                    D1["TransferMoneyDomainService"]
+                    D2["Account"]
+                    D3["Money"]
+                    D4["IBAN"]
+                end
+            end
+        end
+    end
+
+%% representative dependency arrows (still pointing inward)
+    F3 --> AD1
+    AD1 --> A2
+    A2 --> D1
+    A2 --> A3
+    A3 --> AD4
+    AD4 --> F6
