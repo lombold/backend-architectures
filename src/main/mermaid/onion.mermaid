@@ -1,0 +1,41 @@
+flowchart TB
+    subgraph Adapters["Adapters"]
+        webController["TransferMoneyController"]
+        webRequestDto["TransferMoneyRequest"]
+        persistenceAdapter["AccountRepositoryImpl"]
+        persistenceMapper["OnionAccountMapper"]
+        springApp["SpringOnionApplication"]
+        springConfig["ApplicationConfiguration"]
+        springWeb["Spring MVC / Spring Boot"]
+        accountEntity["AccountEntity (JPA)"]
+        jpaRepo["JpaAccountRepository (Spring Data JPA)"]
+        accountRepoImpl["AccountRepositoryImpl (@Service)"]
+        accountMapper["OnionAccountMapper (MapStruct)"]
+        notFoundEx["NotFoundException"]
+
+        subgraph Application["Application"]
+            transferUseCase["TransferMoneyUseCase"]
+            transferService["TransferMoneyService"]
+            accountRepoPort["AccountRepository (output port)"]
+
+            subgraph Domain["Domain"]
+                transferDomainService["TransferMoneyDomainService"]
+                account["Account"]
+                money["Money"]
+                iban["IBAN"]
+            end
+        end
+    end
+
+%% representative dependency arrows (inward only)
+    springWeb --> webController
+    webController --> transferUseCase
+    transferService -. implements .-> transferUseCase
+    transferService --> transferDomainService
+    transferService --> accountRepoPort
+    persistenceAdapter -. implements .-> accountRepoPort
+    persistenceAdapter --> jpaRepo
+    persistenceAdapter --> persistenceMapper
+    persistenceMapper --> account
+    persistenceMapper --> money
+    persistenceMapper --> iban

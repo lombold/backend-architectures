@@ -1,0 +1,45 @@
+flowchart TB
+    subgraph O2["Adapters"]
+    %% inbound
+        C["TransferMoneyController"]
+        REQ["TransferMoneyRequest (DTO)"]
+        GEH["GlobalExceptionHandler"]
+
+        subgraph O1["Application"]
+        %% ports
+            UC["TransferMoneyUseCase (input port)"]
+            OUT["AccountRepositoryPort (output port)"]
+        %% service + model
+            SVC["TransferMoneyService"]
+            ACC["Account"]
+            IB["IBAN"]
+            MON["Money"]
+        end
+        
+    %% outbound
+        ADA["AccountRepositoryPortAdapter"]
+        JPA["JpaAccountRepository"]
+        ENT["AccountEntity (JPA)"]
+        MAP["HexagonalAccountMapper"]
+        NFE["NotFoundException"]
+    %% wiring / framework
+        APP["SpringHexagonalApplication"]
+        CFG["ApplicationConfiguration"]
+
+    end
+
+%% dependencies (all inward)
+    APP --> CFG
+    CFG --> SVC
+    C --> UC
+    C --> REQ
+    SVC -. implements .-> UC
+    SVC --> OUT
+    SVC --> ACC
+    ACC --> IB
+    ACC --> MON
+    ADA -. implements .-> OUT
+    ADA --> JPA
+    ADA --> MAP
+    JPA --> ENT
+    GEH --> NFE
