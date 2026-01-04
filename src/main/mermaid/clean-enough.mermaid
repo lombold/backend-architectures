@@ -1,0 +1,55 @@
+flowchart TB
+    subgraph ADAPTERS["Adapters (Web + Persistence)"]
+        TransferMoneyController["TransferMoneyController\n(@RestController)"]
+        TransferMoneyRequest["TransferMoneyRequest (DTO)"]
+        AccountRepositoryAdapter["AccountRepositoryAdapter\n(@Service)"]
+        JpaAccountRepository["JpaAccountRepository\n(Spring Data JPA)"]
+        AccountEntity["AccountEntity\n(@Entity)"]
+        CleanEnoughAccountMapper["CleanEnoughAccountMapper\n(MapStruct)"]
+        NotFoundException["NotFoundException"]
+
+        subgraph APPLICATION["Application (Use Cases + Ports)"]
+            TransferMoneyService["TransferMoneyService\n(Use case impl)"]
+            TransferMoneyUseCase["TransferMoneyUseCase\n<<interface>>"]
+            AccountRepositoryPort["AccountRepositoryPort\n<<interface>>"]
+            OutputPort["OutputPort<T>\n<<interface>>"]
+        %% ===== INNER: Domain =====
+            subgraph DOMAIN["Domain (Entities + Domain Services)"]
+                Account["Account"]
+                IBAN["IBAN"]
+                Money["Money"]
+                TransferMoneyDomainService["TransferMoneyDomainService"]
+            end
+        end
+    end
+
+    subgraph CONFIG["Wiring / Configuration"]
+        CleanArchitectureConfiguration["CleanArchitectureConfiguration\n(@Configuration)"]
+        SpringCleanArchitectureApplication["SpringCleanArchitectureApplication\n(@SpringBootApplication)"]
+    end
+
+%% ===== Dependencies (outer -> inner) =====
+    TransferMoneyController --> TransferMoneyService
+    TransferMoneyController --> TransferMoneyRequest
+    TransferMoneyController --> IBAN
+    TransferMoneyController --> Money
+    TransferMoneyService --> TransferMoneyDomainService
+    TransferMoneyService --> AccountRepositoryPort
+    TransferMoneyService --> IBAN
+    TransferMoneyService --> Money
+    TransferMoneyService --> Account
+    AccountRepositoryAdapter --> JpaAccountRepository
+    AccountRepositoryAdapter --> CleanEnoughAccountMapper
+    AccountRepositoryAdapter --> NotFoundException
+    AccountRepositoryAdapter --> Account
+    AccountRepositoryAdapter --> IBAN
+    JpaAccountRepository --> AccountEntity
+    CleanEnoughAccountMapper --> AccountEntity
+    CleanEnoughAccountMapper --> Account
+    CleanEnoughAccountMapper --> Money
+    CleanEnoughAccountMapper --> IBAN
+    CleanArchitectureConfiguration --> TransferMoneyService
+    CleanArchitectureConfiguration --> TransferMoneyController
+    SpringCleanArchitectureApplication --> CleanArchitectureConfiguration
+    TransferMoneyService -. implements .-> TransferMoneyUseCase
+    AccountRepositoryAdapter -. implements .-> AccountRepositoryPort
